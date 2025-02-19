@@ -1,7 +1,7 @@
 
 ---
 title: "Demo Portfolio for Computational Musicology 2025"
-author: "Isa van den Hoven"
+author: "Isa van den Hoven hoi"
 date: "Block 4"
 output: 
   flexdashboard::flex_dashboard:
