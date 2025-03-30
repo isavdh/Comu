@@ -6,8 +6,8 @@ date: "Block 4"
 output: 
   flexdashboard::flex_dashboard:
     theme: 
-      bg: "#330099" 
-      fg: "#000066"
+      bg: "#FF9999" 
+      fg: "#000080"
       
 ---
 
@@ -23,20 +23,52 @@ library(heatmaply)
 source("compmus.R")
 ```
 
-Songs 
+Songs Overview
 ================================================================================
-I want to put my songs on this page 
+### Bella Ciao
 
-Analysis
+Some may know it from the famous netflix series 'la casa de papel', however, Bella Ciao is much older than that! It is a powerful, compelling song with a simple yet emotionally loaded chorus. Therefore it is not surprising it used to be an Italian battle song that was sung by farmers as a protest against the fascist leaders during the second world wore. Over the years it became a song that symbolizes opposition and freedom. 
+
+There are many different versions of this song, and I selected two to analyze and compare. The first is a calmer, more melodic version that features a variety of instruments. The second is an upbeat house remix with an intriguing build-up. I found it interesting to compare these two versions because, although they share the same melody, their execution is completely different. In this storyboard, I aim to answer questions such as: What elements are the same, and what are different? What factors make one version sound calm and melodic while the other has an energetic house vibe? 
+
+To answer these questions I will analyze both songs according to different features such as chroma, timbre and temporal features. Furthermore I will compare my songs with the rest of the class' by a dendrogram and heatmap. 
+
+At last I will discuss an two algorithms that should be able to classify whether the songs are AI-generated or not. 
+
+```{r, echo=FALSE, results='asis'}
+cat('### Song 1: calm and melodic version   
+<audio controls>
+    <source src="corpus/corpus/isa-h-1.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+### Song 2: dance-able house remix version  
+<audio controls>
+    <source src="corpus/corpus/isa-h-2.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>')
+```
+
+Sources: 
+
+Pixaxy (z.d.) Bella Ciao - Italian Partisan Folk Song from the late 19th Century. geraadpleegd op 16 februari 2025, van 
+
+https://pixabay.com/music/folk-bella-ciao-italian-partisan-folk-song-from-the-late-19th-century-3052/Links to an external site. 
+
+ 
+
+Pixaby  (z.d.) Bella Ciao. Rise of legend. Dance house version. Background vlog music. geraadpleegd op 16 februari 2025, van 
+
+https://pixabay.com/music/upbeat-bella-ciao-rise-of-legend-dance-house-version-background-vlog-music-186473/Links to an external site.
+
+Chroma-features {.storyboard} 
 ================================================================================
 
-Column {.tabset}
---------------------------------------------------------------------------------
-### Chromagram 
+### Chromagrams
 
-```{r }
-"features/features/berend-b-1.json" |>                           # Change the track
-  compmus_chroma(norm = "identity") |>                 # Change the norm
+```{r, fig.show='hold', out.width="100%"}
+"features/isa-h-1.json" |>                           # Change the track
+  compmus_chroma(norm = "euclidean") |>                 # Change the norm
   ggplot(aes(x = time, y = pc, fill = value)) + 
   geom_raster() +
   scale_y_continuous(
@@ -48,45 +80,85 @@ Column {.tabset}
                 "G#|Ab", "A", "A#|Bb", "B"
               )
   ) +
-  scale_fill_viridis_c(guide = "none") +               # Change the colours?
-  labs(x = "Time (s)", y = NULL, fill = NULL) +
-  theme_classic()
-```
-***
-hoi komt er nu een bijschrift op de juiste plek? 
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL, title='Song 1') +
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
 
-### Cepstrogram 
-
-```{r out.width = 100, out.height=50}
-"features/features/berend-b-1.json" |>                           # Change the track
-  compmus_mfccs(norm = "identity") |>                  # Change the norm
-  ggplot(aes(x = time, y = mfcc, fill = value)) + 
+"features/isa-h-2.json" |>                           # Change the track
+  compmus_chroma(norm = "euclidean") |>                 # Change the norm
+  ggplot(aes(x = time, y = pc, fill = value)) + 
   geom_raster() +
   scale_y_continuous(
-    breaks = 0:12,
+    breaks = 0:11,
     minor_breaks = NULL,
+    labels = c(
+                "C", "C#|Db", "D", "D#|Eb",
+                "E", "F", "F#|Gb", "G",
+                "G#|Ab", "A", "A#|Bb", "B"
+              )
   ) +
-  scale_fill_viridis_c(guide = "none") +               # Change the colours?
-  labs(x = "Time (s)", y = "Coefficient Number", fill = NULL) +
-  theme_classic()                                      # Change the theme?
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL, title="Song 2") +
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
+
 ```
 
+***
 
-```{r out.width=100, out.height=50}
-"features/features/berend-b-1.json" |>                           # Change the track
-  compmus_chroma(norm = "identity") |>                 # Change the norm
+In the above chromagrams, the presence of each chroma in the Western scale per timeframe is shown. Chromagrams are based on a frequency decomposition of the music per timeframe. Each note contains certain frequencies to varying degrees, and based on this, a characteristic vector representation can be created for each note. The color in the chromagram indicates the extent to which the frequency decomposition of the music at that moment matches the frequency decomposition of the chromas.
+
+In both plots, the notes A, E, and C appear the most. This was expected since both songs share the same melody. What stands out is that song 1 has significantly more stripes than song 2. The number of stripes indicates a high level of melodic variation. It makes sense that these stripes occur more frequently in song 1, as this version is more melodic than the dance version. The background instruments in this version add more musical color compared to the electronic beats in song 2.
+
+
+### Chromabased Self-similarity 
+
+```{r, fig.show='hold', out.width="100%"}
+"features/isa-h-1.json" |>                           # Change the track
+  compmus_chroma(norm = "euclidean") |>                 # Change the norm
   compmus_self_similarity(
     feature = pc,
-    distance = "euclidean"                             # Change the distance
+    distance = "cosine"                             # Change the distance
   ) |>   
   ggplot(aes(x = xtime, y = ytime, fill = d)) + 
   geom_raster() +
-  scale_fill_viridis_c(guide = "none") +               # Change the colours?
-  labs(x = "Time (s)", y = NULL, fill = NULL) +
-  theme_classic()                                      # Change the theme?
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL, title='Song 1') +
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )                                    # Change the theme?
+
+"features/isa-h-2.json" |>                           # Change the track
+  compmus_chroma(norm = "euclidean") |>                 # Change the norm
+  compmus_self_similarity(
+    feature = pc,
+    distance = "cosine"                             # Change the distance
+  ) |>   
+  ggplot(aes(x = xtime, y = ytime, fill = d)) + 
+  geom_raster() +
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL, title='Song 2') +
+   theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  ) 
+
 ```
 
+***
+
+A self-similarity matrix represents the similarities within a piece of music at every moment in time. This allows for the discovery of patterns in the music. This particular self-similarity matrix is chroma-based, meaning that the music is compared to itself based on chroma features.
+
+In both plots, a rather block-like structure is visible. This is due to Bella Ciao being a strophic song, where the same sections are repeated throughout, following an A-A-A structure. In the plot of Song 2, diagonal lines can be observed. This indicates that there are repeating sections in the music. 
+
 ### Chordogram Chord Estimation
+
 ```{r}
 #      C     C#    D     Eb    E     F     F#    G     Ab    A     Bb    B
 major_chord <-
@@ -172,77 +244,225 @@ key_templates <-
 ```
 
 
-```{r}
-"features/features/berend-b-1.json" |> 
-  compmus_chroma(norm = "identity") |> 
+```{r, fig.show='hold', out.width="100%"}
+"features/isa-h-1.json" |> 
+  compmus_chroma(norm = "euclidean") |> 
   compmus_match_pitch_templates(
     chord_templates,         # Change to chord_templates if desired
-    norm = "chebyshev",       # Try different norms (and match it with what you used in `compmus_chroma`)
-      # Try different distance metrics
+    norm = "euclidean",       # Try different norms (and match it with what you used in `compmus_chroma`)
+    distance = "cosine"  # Try different distance metrics
   ) |>
   ggplot(aes(x = time, y = name, fill = d)) + 
   geom_raster() +
-  scale_fill_viridis_c(guide = "none") +               # Change the colours?
-  labs(x = "Time (s)", y = "Template", fill = NULL) +
-  theme_minimal() + theme( plot.background = element_rect(fill = "beige", color = NA), 
-    panel.background = element_rect(fill = "white")
-  )                         # Change the theme?
-```
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = "Template", fill = NULL, title='Song 1') +
+   theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
 
-### Chordogram Key Estimation
-
-
-```{r .beige-bg}
-"features/features/berend-b-1.json" |> 
-  compmus_chroma(norm = "identity") |> 
+"features/isa-h-2.json" |> 
+  compmus_chroma(norm = "euclidean") |> 
   compmus_match_pitch_templates(
     chord_templates,         # Change to chord_templates if desired
-    norm = "chebyshev",       # Try different norms (and match it with what you used in `compmus_chroma`)
-    # Try different distance metrics
+    norm = "euclidean",       # Try different norms (and match it with what you used in `compmus_chroma`)
+    distance="cosine"  # Try different distance metrics
   ) |>
   ggplot(aes(x = time, y = name, fill = d)) + 
   geom_raster() +
-  scale_fill_viridis_c(guide = "none") +               # Change the colours?
-  labs(x = "Time (s)", y = "Template", fill = NULL) +
-  theme_minimal()+ theme(
-    plot.background = element_rect(fill = "beige", color = NA), 
-    panel.background = element_rect(fill = "white")
-  )                                  # Change the theme?
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = "Template", fill = NULL, title='Song 2') +
+   theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
 ```
 
+*** 
+
+A chordogram functions similarly to a chromagram, except that the values on the y-axis represent chords instead of individual notes. The lower the value (i.e., the darker the color), the more the given chord matches the chord being played in the music at that moment. This graph also shows that Song 1 has more melodic variety than Song 2.
+
+
+Timbre features {.storyboard}
+===========================================================================================
+### Cepstrogram 
+
+```{r, fig.show='hold', out.width="100%"}
+"features/isa-h-1.json" |>                           # Change the track
+  compmus_mfccs(norm = "euclidean") |>                  # Change the norm
+  ggplot(aes(x = time, y = mfcc, fill = value)) + 
+  geom_raster() +
+  scale_y_continuous(
+    breaks = 0:12,
+    minor_breaks = NULL,
+  ) +
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = "Coefficient Number", fill = NULL, title='Song 1') +
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )# Change the theme?
+
+"features/isa-h-2.json" |>                           # Change the track
+  compmus_mfccs(norm = "euclidean") |>                  # Change the norm
+  ggplot(aes(x = time, y = mfcc, fill = value)) + 
+  geom_raster() +
+  scale_y_continuous(
+    breaks = 0:12,
+    minor_breaks = NULL,
+  ) +
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = "Coefficient Number", fill = NULL, title='Song 2') +
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )                                      # Change the theme?
+```
+
+***
+A cepstrogram is a plot that provides insight into the timbre characteristics of a piece of music. It is based on a spectrogram, but instead of frequency, the y-axis represents quefrency. Quefrency refers to repetition patterns within the frequency domain. Lower quefrencies correspond to longer repetition patterns, while higher quefrencies indicate shorter repetition patterns.
+
+High energy in low quefrencies suggests a strong bass, whereas high energy in high quefrencies can indicate rich overtones, such as vocals or instrumental harmonics.
+
+In the given cepstrograms, a distinct dark blue band is visible at the bottom. This indicates low energy in the fundamental quefrencies, suggesting that there is no strong bass. The highest energy is observed in the quefrencies above this range. All quefrencies above the fundamental tones exhibit an average level of energy, which suggests a broad range of overtones without one dominant periodicity.
+
+One key difference between the two cepstrograms is that the highest energy—found at a relatively low quefrency—is stronger in Song 1 than in Song 2. This is noteworthy because a stronger peak in this range could indicate a more prominent bass in Song 1 compared to the remix version. This is remarkable since you might expect a more prominent bass in a remix. However, the remix version sounds relatively flat, which could suggest that the bass is less pronounced in the cepstrogram. Additionally, in Song 2, the melodies remain clearly audible, indicating that the overtones are well preserved.
+
+### Timbre-based self-similarity matrix 
+```{r, fig.show='hold', out.width="100%"}
+"features/isa-h-1.json" |>                           # Change the track
+  compmus_mfccs(norm = "manhattan") |>                  # Change the norm
+  compmus_self_similarity(
+    feature = mfcc,
+    distance = "manhattan"                             # Change the distance
+  ) |>   
+  ggplot(aes(x = xtime, y = ytime, fill = d)) + 
+  geom_raster() +
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL, title='Song 1') +
+   theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
+
+"features/isa-h-2.json" |>                           # Change the track
+  compmus_mfccs(norm = "manhattan") |>                  # Change the norm
+  compmus_self_similarity(
+    feature = mfcc,
+    distance = "manhattan"                             # Change the distance
+  ) |>   
+  ggplot(aes(x = xtime, y = ytime, fill = d)) + 
+  geom_raster() +
+  scale_fill_viridis_c() +               # Change the colours?
+  labs(x = "Time (s)", y = NULL, fill = NULL, title='Song 2') +
+   theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
+```
+
+*** 
+The timbre-based similarity matrix is similar to the chroma-based similarity matrix, with the key difference being that it is based on timbre rather than chroma features. One interesting aspect of this similarity matrix is that musical structures become clearly visible.
+
+In Song 1, there is little variation throughout the entire track. The beginning differs slightly, but after that, the timbre stabilizes. This can be heard directly in the music, as the piece starts with a single instrument, which is then joined by others at around 15 seconds.
+
+In Song 2, a different structure emerges. The matrix reveals four distinct blocks. I would personally describe this as the "building-up" block, followed by the "explosive" block, after which this structure repeats once more. This is exactly reflected in the music: the remix transitions from calm to intense, then back to calm, and then intense again
+
+Temporal features {.storyboard}
+===========================================================================================
 ### Energy Novelty 
-```{r}
-"features/features/ahram-j-1.json" |>
+```{r, fig.show='hold', out.width="100%" }
+"features/isa-h-1.json" |>
   compmus_energy_novelty() |> 
   ggplot(aes(t, novelty)) +
   geom_line() +
-  theme_minimal() +
-  labs(x = "Time (s)", y = "Energy Novelty")
+  scale_y_continuous(limits = c(0,0.4))+ 
+   theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  ) + 
+  labs(x = "Time (s)", y = "Energy Novelty", title='Song 1')
+
+"features/isa-h-2.json" |>
+  compmus_energy_novelty() |> 
+  ggplot(aes(t, novelty)) +
+  geom_line() +
+  scale_y_continuous(limits = c(0,0.4)) + 
+   theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  ) +
+  labs(x = "Time (s)", y = "Energy Novelty", title='Song 2')
 ```
-### Spectral Novelty 
-```{r}
-"features/features/ahram-j-1.json" |>
+
+*** 
+An energy novelty function represents the energy per timeframe. It is a function of amplitude, meaning that this plot primarily reflects the loudness of the music. The reason these plots are categorized under temporal features is that the tempogram is derived from this function.
+
+Interestingly, the energy values of Song 1 are higher than those of Song 2, whereas the opposite might have been expected. This could be related to the audio quality of the fragments. Another notable observation is that the energy values in Song 1 remain relatively stable, while Song 2 exhibits two distinct peaks. These peaks are also clearly audible in the music.
+
+### Spectral Novelty
+```{r, fig.show='hold', out.width="100%"}
+"features/isa-h-1.json" |>
   compmus_spectral_novelty() |> 
   ggplot(aes(t, novelty)) +
   geom_line() +
-  theme_minimal() +
-  labs(x = "Time (s)", y = "Spectral Novelty")
+  scale_y_continuous(limits = c(0,0.25))+ 
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )+
+  labs(x = "Time (s)", y = "Spectral Novelty", title='Song 1')
+
+"features/isa-h-2.json" |>
+  compmus_spectral_novelty() |> 
+  ggplot(aes(t, novelty)) +
+  geom_line() +
+  scale_y_continuous(limits = c(0,0.25))+
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
+  labs(x = "Time (s)", y = "Spectral Novelty", title='Song 2')
 ```
 
-### Tempogram 
-```{r}
-"features/features/ahram-j-1.json" |>
+*** 
+A spectral novelty function differs from the energyfunction since it is based on spectrovalues. However, likewise this plot can be used to recognize tempo. This function is used when the music is more melodic and the onsets of the notes are not as loud, because beatdetection is harder in that case. Spectrovalues can be used to detect onsets since the sudden change in chroma also indicates an onset. 
+
+In the graph above you see again pretty stable spectrovalues for song 1, while two peaks are observed in song 2. 
+
+### Tempogram
+```{r, fig.show='hold', out.width="100%"}
+"features/isa-h-1.json" |>
   compmus_tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) |>
   ggplot(aes(x = time, y = bpm, fill = power)) +
   geom_raster() +
   scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
+  labs(x = "Time (s)", y = "Tempo (BPM)", title='Song 1') +
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
+
+"features/isa-h-2.json" |>
+  compmus_tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) |>
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)", title='Song 2') +
+  theme(
+    panel.background = element_rect(fill = "#FF9999", color = "#FF9999"),  # Geen achtergrond
+    plot.background = element_rect(fill = "#FF9999", color = "#FF9999"),   # Geen rand
+  )
 ```
 
+***
+The tempogram represents the number of beats per minute. Since the energy function essentially doubles when the beats per minute double, this doubling still aligns well, resulting in multiple tempos appearing in the graphs. However, the actual number of beats per minute that represents the tempo of the music is likely the lowest line, around 120 beats per minute. The tempo is almost the same for both versions, the only difference being that song 2 a few sections appear where the tempo is slightly slower, this is because of a musical build-up just before the beat drops.  
+
+Class corpus {.storyboard}
+===========================================================================================
 ### Hierarchichal Clustering: Dendrogram
 
-```{r}
+```{r, fig.show='hold', out.width="100%"}
 get_conf_mat <- function(fit) {
   outcome <- .get_tune_outcome_names(fit)
   fit |> 
@@ -286,18 +506,11 @@ compmus_dist |>
   ggdendrogram()
 ```
 
-### Hierarchical Clustering Heatmap 
-```{r}
-heatmaply(
-  cluster_juice,
-  hclustfun = hclust,
-  hclust_method = "average",  # Change for single, average, or complete linkage.
-  dist_method = "euclidean"
-)
-```
+***
+This dendrogram shows a clustering of all songs that were submitted in the corpus. It is not clear based on what features the splits are made. 
 
 ### Classification: K-nearest-neighbours 
-```{r}
+```{r, fig.show='hold', out.width="100%"}
 compmus2025_filtered <- 
   compmus2025 |> filter(!is.na(ai)) |> 
   mutate(ai = factor(if_else(ai, "AI", "Non-AI")))
@@ -337,9 +550,14 @@ classification_knn |> get_pr()
 
 ```
 
+***
+In this years' corpus a lot of submitted songs were AI generated. This K-nearest-neighbours algorithm tries to predict which songs are and which songs are not AI generated. K-nearest-neighbours is a relatively easy algorithm that takes all datapoints and tries to classify them into a given number of clusters. Firstly all points are randomly assigned to one class and of these two classes the average values are taken after which all points are assigned to the class of the closest average values. This process is repeated a few times. 
+
+The results show that this algorithm works okay for AI songs, it misses 12 out of 49, however it also recognizes a lot of not AI songs as AI 20 out of 41. 
+
 ### Classification: Random forest 
 
-```{r}
+```{r, fig.show='hold', out.width="100%"}
 forest_model <-
   rand_forest() |>
   set_mode("classification") |> 
@@ -370,20 +588,37 @@ workflow() |>
   labs(x = NULL, y = "Importance")
 
 compmus2025_filtered |>
-  ggplot(aes(x = valence, y = arousal, colour = ai, size = tempo)) +
+  ggplot(aes(x = instrumentalness, y = arousal, colour = ai, size = danceability)) +
   geom_point(alpha = 0.8) +
   scale_color_viridis_d() +
   labs(
-    x = "Valence",
+    x = "Instrumentalness",
     y = "Arousal",
-    size = "Tempo",
+    size = "Danceability",
     colour = "AI"
   )
 
 ```
-Column {.tabset}
-------------------------------------------------------------------------------------------
-### Chordogram Song 1 
-***
 
-For this plot a chebyshev norm was chosen to generate the results. This was because the differences between the keys are the clearest using this norm.  
+*** 
+
+The random forest algorithm that tries to make a prediction over songs by organizing the different features of the songs in lots of trees and picks the tree with the best organisation. Because of this method we get an insight on what features are mostly used to split the tree on and therefore which features differ the most between the songs. 
+The random forest tries to make the same AI, non-AI prediction as the algorithm we saw before. The results are somewhat the same as for the K-nearest-neighbours algorithm. 
+
+What is interesting is that these plots give insight in what features the algorithm used to make the tree. Instrumentalness, arousal and danceability are the most prominent ones. To get insight in correlations between these features I put them in a plot. Unfortunately correlations aren't very visible. 
+
+Conclusion
+=============================================================================================
+### Conclusion
+
+All in all I observed some interesting similarities and differences between the two versions of Bella ciao, which I will discuss in this section. 
+
+Firstly, the chromavalues for both songs were very similar, which makes sense since both songs have the same melody. However I did observe a difference in the amount of melody. Song 1 definitely contains a lot more musical color, which is due to the variety of melodic instruments used in this version compared to the remix version. Furthermore, the strophic structure of the song was visible in both chroma-based self similarity matrices. 
+
+Secondly, within the timbre values the songs were quite similar. Interestingly enough the cepstrogram displayed higher energy values in the low quefrencies for song 1 as compared to song 2. This would mean bass-like sounds would be more present in song 1 as compared to song 2. I found it surprising, but it might be explained by the flat sounds in song 2. Furthermore the musical structure of song 2 was very visible in the timbre-based self-similarity matrices. From the comparison of the two matrices I conclude that the structures of the two versions are a bit different: Version 2 has a lot more build up and let down, which definitely contributes to the dance-like experience i think. 
+
+Thirdly, for the temporal features both songs display the same tempo, which is interesting. Even though version 2 sounds more upbeat, the song actually has the same tempo as the first. Other elements, such as the build-up probably cause the upbeat/dancelike experience. 
+
+At last, the class corpus contained a lot of AI generated songs. It seemed to be sort of possible for the two algorithms to dissect between AI and non AI generated songs. Instrumentalness, danceability and arousal were the features that were most important for this dissection, which might be logical since AI-generated songs usually don't contain a lot of melodic, voice-like flowy sounds. However we do need to be careful with since a lot of non-AI songs were also classified as AI. 
+
+
